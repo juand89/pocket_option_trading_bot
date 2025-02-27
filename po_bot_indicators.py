@@ -112,10 +112,23 @@ def websocket_log():
                     minutes = data['period'] // 60
                     directory = f'data_{minutes}m'
                     os.makedirs(directory, exist_ok=True)
-                    filename = f'{directory}/{asset}_{now.year}_{now.month}_{now.day}_{now.hour}.csv'
-                    df = pd.DataFrame(CANDLES, columns=['timestamp', 'open', 'close', 'high', 'low'])
-                    df.to_csv(filename)
-                    print(f'History file saved: {filename}')
+                    filename = f'{directory}/{asset}_{now.year}_{now.month}_{now.day}.csv'
+                    
+                    # Create DataFrame for new data
+                    new_df = pd.DataFrame(CANDLES, columns=['timestamp', 'open', 'close', 'high', 'low'])
+                    
+                    # If file exists, merge with existing data
+                    if os.path.exists(filename):
+                        existing_df = pd.read_csv(filename, index_col=0)
+                        # Combine existing and new data, drop duplicates based on timestamp
+                        combined_df = pd.concat([existing_df, new_df]).drop_duplicates(subset=['timestamp'])
+                        # Sort by timestamp to maintain chronological order
+                        combined_df = combined_df.sort_values('timestamp')
+                        combined_df.to_csv(filename)
+                        print(f'History file updated: {filename}')
+                    else:
+                        new_df.to_csv(filename)
+                        print(f'History file created: {filename}')
                 print('Got', len(CANDLES), 'candles for', data['asset'])
             try:
                 current_value = data[0][2]
