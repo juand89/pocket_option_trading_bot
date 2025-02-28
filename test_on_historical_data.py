@@ -151,7 +151,7 @@ def main():
         all_wins += wins
         all_draws += draws
         all_loses += loses
-        all_max_loss = max_loss
+        all_max_loss = max(all_max_loss, max_loss)
 
     print('---')
     print('All Orders:', all_orders, 'All Wins:', all_wins, 'All Draws:', all_draws, 'All Loses:', all_loses, 'Max Consecutive loses:', all_max_loss,  'Win percent:', round(all_wins * 100 / all_orders, 2), '%')
